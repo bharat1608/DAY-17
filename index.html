@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Weather</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .country-card {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title" class="text-center">Country Weather</h1>
+        <div class="row" id="countries-container">
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("https://restcountries.com/v3.1/all")
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('countries-container');
+                    data.forEach(country => {
+                        const card = document.createElement('div');
+                        card.className = 'col-lg-4 col-md-6 col-sm-12 mb-4';
+
+                        card.innerHTML = `
+                            <div class="card country-card">
+                                <div class="card-header">
+                                    <img src="${country.flags.svg}" class="card-img-top" alt="${country.name.common}">
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">${country.name.common}</h5>
+                                    <div class="country-details">
+                                        <p><strong>Capital:</strong> ${country.capital ? country.capital[0] : 'N/A'}</p>
+                                        <p><strong>Region:</strong> ${country.region}</p>
+                                        <p><strong>Subregion:</strong> ${country.subregion}</p>
+                                        <p><strong>Population:</strong> ${country.population}</p>
+                                        <p><strong>Area:</strong> ${country.area} km²</p>
+                                        <!-- Add more details as needed -->
+                                    </div>
+                                    <button class="btn btn-primary" onclick="getWeather(${country.latlng[0]}, ${country.latlng[1]}, this)">Click for Weather</button>
+                                    <div class="weather-info mt-3"></div>
+                                </div>
+                            </div>
+                        `;
+
+                        container.appendChild(card);
+                    });
+                })
+                .catch(error => console.error('Error fetching country data:', error));
+        });
+
+        function getWeather(lat, lon, button) {
+            const apiKey = "1d08a4af3b0b19de550c048def08736b";
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const weatherInfo = button.nextElementSibling;
+                    weatherInfo.innerHTML = `
+                        <p>Weather: ${data.weather[0].description}</p>
+                        <p>Temperature: ${Math.round(data.main.temp - 273.15)}°C</p>
+                    `;
+                })
+                .catch(error => console.error('Error fetching weather data:', error));
+        }
+    </script>
+
+    <script src="https://app.zenclass.in/sheets/v1/js/zen/suite/bundle.js"></script>
+</body>
+</html>
+
+
